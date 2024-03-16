@@ -1,0 +1,20 @@
+package layouts
+
+templ MainLayout(children templ.Component) {
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <script src="https://cdn.tailwindcss.com"></script>
+        </head>
+        <body class="bg-gray-900">
+            <h1 class="text-center py-6 mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-4xl dark:text-white">
+                Temple example <span class="text-blue-600 dark:text-blue-500">Cookies & Sessions</span>
+            </h1>
+            <div>
+                @children
+            </div>
+        </body>
+    </html>
+}
