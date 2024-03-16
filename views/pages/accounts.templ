@@ -14,10 +14,8 @@ script handleFormSubmit() {
            const jsonObject = {};
 
            for (const [key, value] of formData.entries()) {
-               if (key.endsWith('-username') || key.endsWith('-password')) {
-                   const newKey = key.split('-')[1];
-                   jsonObject[newKey] = value;
-               }
+               const newKey = key.split('-')[1];
+               jsonObject[newKey] = value;
            }
 
            const finalObject = {
@@ -57,7 +55,8 @@ script handleFormSubmit() {
 
 templ Accounts() {
      <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 m-auto p-10">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Create a new account</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white" id="signin-title">Create a new account</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white hidden" id="login-title">Login into your account</h1>
         <form id="signinForm" action="/api/signin" method="post">
             <div class="mb-6">
                 <label for="signin-username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
@@ -66,6 +65,10 @@ templ Accounts() {
             <div class="mb-6">
                 <label for="signin-password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
                 <input type="password" id="signin-password" name="signin-password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="•••••••••" required />
+            </div>
+            <div class="mb-6">
+                <label for="signin-email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                <input type="email" id="signin-email" name="signin-email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="gopher@go.com..." required />
             </div>
             <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create account</button>
             <button type="button" onclick="switchForms()" class="w-full text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 m-auto mt-4">Already have an account? Login here</button>
@@ -96,6 +99,8 @@ templ Accounts() {
     <script>
     let signInForm = document.querySelector("#signinForm");
     let loginForm = document.querySelector("#loginForm");
+    let loginTitle = document.querySelector("#login-title");
+    let signinTitle = document.querySelector("#signin-title");
 
     let signinErrorMessage = document.querySelector(".signin-error-message");
     let loginErrorMessage = document.querySelector(".login-error-message");
@@ -106,6 +111,9 @@ templ Accounts() {
 
         signinErrorMessage.classList.toggle('active-error-message');
         loginErrorMessage.classList.toggle('active-error-message');
+
+        loginTitle.classList.toggle('hidden');
+        signinTitle.classList.toggle('hidden');
     }
     </script>
 }

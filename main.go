@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/sessions"
 	"github.com/sebasvil20/templ-sys-login-exp/users"
 	"github.com/sebasvil20/templ-sys-login-exp/utils"
@@ -35,12 +37,20 @@ func main() {
 	})
 
 	r.Route("/api", func(r chi.Router) {
+		r.Use(ValidatorMiddleware)
 		r.Post("/login", func(w http.ResponseWriter, r *http.Request) {
-			reqUser := users.User{}
+			validate, _ := r.Context().Value("validator").(*validator.Validate)
+			reqUser := users.UserCredentials{}
 			body, _ := io.ReadAll(r.Body)
 			err := json.Unmarshal(body, &reqUser)
 			if err != nil {
 				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": "Bad request body"})
+				return
+			}
+
+			err = validate.Struct(&reqUser)
+			if err != nil {
+				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": fmt.Sprintf("Validation error: %s", err.Error())})
 				return
 			}
 
@@ -59,12 +69,18 @@ func main() {
 		})
 
 		r.Post("/signin", func(w http.ResponseWriter, r *http.Request) {
+			validate, _ := r.Context().Value("validator").(*validator.Validate)
 			reqUser := users.User{}
 			body, _ := io.ReadAll(r.Body)
-			fmt.Println(string(body))
 			err := json.Unmarshal(body, &reqUser)
 			if err != nil {
 				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": "Bad request body"})
+				return
+			}
+
+			err = validate.Struct(&reqUser)
+			if err != nil {
+				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": fmt.Sprintf("Validation error: %s", err.Error())})
 				return
 			}
 
@@ -91,6 +107,15 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			layouts.MainLayout(pages.Forbidden()).Render(r.Context(), w)
 			return
 		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func ValidatorMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, "validator", validator.New())
+		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
 }
