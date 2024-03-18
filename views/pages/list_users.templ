@@ -2,20 +2,23 @@ package pages
 
 import (
     "github.com/sebasvil20/templ-sys-login-exp/users"
+    "github.com/sebasvil20/templ-sys-login-exp/views/layouts"
 )
 
 templ ListUser(users []users.User) {
-    <div class="m-auto max-w-md p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-        if len(users) == 0 {
-            <h2 class="mb-6 text-lg font-semibold text-gray-900 dark:text-white">There are no users created, try creating a new one</h2>
-        } else {
-            <h2 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">List of users created: </h2>
-            <ul class="mb-6 max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
-                for _, user := range users {
-                    <li>{ user.Username }</li>
-                }
-            </ul>
-        }
-        <a href="/users/new" class="mt-6 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Create new user</a>
-    </div>
+    @layouts.Base() {
+        <div class="m-auto max-w-md p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            if len(users) == 0 {
+                <h2 class="mb-6 text-lg font-semibold text-gray-900 dark:text-white">There are no users created, try creating a new one</h2>
+            } else {
+                <h2 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">List of users created: </h2>
+                <ul class="mb-6 max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+                    for _, user := range users {
+                        <li>{ user.Username }</li>
+                    }
+                </ul>
+            }
+            <a href="/users/new" class="mt-6 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Create new user</a>
+        </div>
+    }
 }

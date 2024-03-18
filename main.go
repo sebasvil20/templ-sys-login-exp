@@ -13,7 +13,6 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/sebasvil20/templ-sys-login-exp/users"
 	"github.com/sebasvil20/templ-sys-login-exp/utils"
-	"github.com/sebasvil20/templ-sys-login-exp/views/layouts"
 	"github.com/sebasvil20/templ-sys-login-exp/views/pages"
 )
 
@@ -27,13 +26,13 @@ func main() {
 		r.Use(AuthMiddleware)
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
-			layouts.MainLayout(pages.ListUser(users.GetUsers())).Render(r.Context(), w)
+			pages.ListUser(users.GetUsers()).Render(r.Context(), w)
 		})
 	})
 
 	r.Get("/accounts", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		layouts.MainLayout(pages.Accounts()).Render(r.Context(), w)
+		pages.Accounts().Render(r.Context(), w)
 	})
 
 	r.Route("/api", func(r chi.Router) {
@@ -104,7 +103,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "session")
 		if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-			layouts.MainLayout(pages.Forbidden()).Render(r.Context(), w)
+			pages.Forbidden().Render(r.Context(), w)
 			return
 		}
 		next.ServeHTTP(w, r)
