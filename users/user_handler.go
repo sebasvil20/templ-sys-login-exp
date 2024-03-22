@@ -1,14 +1,14 @@
 package users
 
 type User struct {
-	Username string `json:"username" validate:"required"`
-	Email    string `json:"email" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Username string `schema:"username" validate:"required"`
+	Email    string `schema:"email" validate:"required"`
+	Password string `schema:"password" validate:"required"`
 }
 
 type UserCredentials struct {
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Username string `schema:"username" validate:"required"`
+	Password string `schema:"password" validate:"required"`
 }
 
 var users []User

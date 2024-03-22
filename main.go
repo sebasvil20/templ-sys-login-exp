@@ -2,14 +2,13 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/schema"
 	"github.com/gorilla/sessions"
 	"github.com/sebasvil20/templ-sys-login-exp/users"
 	"github.com/sebasvil20/templ-sys-login-exp/utils"
@@ -17,6 +16,7 @@ import (
 )
 
 var store = sessions.NewCookieStore([]byte("test"))
+var decoder = schema.NewDecoder()
 
 func main() {
 	r := chi.NewRouter()
@@ -40,8 +40,13 @@ func main() {
 		r.Post("/login", func(w http.ResponseWriter, r *http.Request) {
 			validate, _ := r.Context().Value("validator").(*validator.Validate)
 			reqUser := users.UserCredentials{}
-			body, _ := io.ReadAll(r.Body)
-			err := json.Unmarshal(body, &reqUser)
+			err := r.ParseMultipartForm(4096)
+			if err != nil {
+				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": "Bad request body"})
+				return
+			}
+
+			err = decoder.Decode(&reqUser, r.PostForm)
 			if err != nil {
 				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": "Bad request body"})
 				return
@@ -70,8 +75,14 @@ func main() {
 		r.Post("/signin", func(w http.ResponseWriter, r *http.Request) {
 			validate, _ := r.Context().Value("validator").(*validator.Validate)
 			reqUser := users.User{}
-			body, _ := io.ReadAll(r.Body)
-			err := json.Unmarshal(body, &reqUser)
+
+			err := r.ParseMultipartForm(4096)
+			if err != nil {
+				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": "Bad request body"})
+				return
+			}
+
+			err = decoder.Decode(&reqUser, r.PostForm)
 			if err != nil {
 				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": "Bad request body"})
 				return
