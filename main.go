@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -11,100 +10,29 @@ import (
 	"github.com/gorilla/schema"
 	"github.com/gorilla/sessions"
 	"github.com/sebasvil20/templ-sys-login-exp/users"
-	"github.com/sebasvil20/templ-sys-login-exp/utils"
 	"github.com/sebasvil20/templ-sys-login-exp/views/pages"
 )
 
-var store = sessions.NewCookieStore([]byte("test"))
-var decoder = schema.NewDecoder()
-
 func main() {
+	decoder := schema.NewDecoder()
+	store := sessions.NewCookieStore([]byte("secret"))
+	instUserHandler := users.InitUserHandler()
+	instUserController := users.InitUserController(instUserHandler, decoder, store)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
 	r.Route("/users", func(r chi.Router) {
 		r.Use(AuthMiddleware)
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "text/html")
-			pages.ListUser(users.GetUsers()).Render(r.Context(), w)
-		})
+		r.Get("/", instUserController.ListUserPage)
 	})
 
-	r.Get("/accounts", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html")
-		pages.Accounts().Render(r.Context(), w)
-	})
+	r.Get("/accounts", instUserController.AccountsPage)
 
 	r.Route("/api", func(r chi.Router) {
 		r.Use(ValidatorMiddleware)
-		r.Post("/login", func(w http.ResponseWriter, r *http.Request) {
-			validate, _ := r.Context().Value("validator").(*validator.Validate)
-			reqUser := users.UserCredentials{}
-			err := r.ParseMultipartForm(4096)
-			if err != nil {
-				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": "Bad request body"})
-				return
-			}
-
-			err = decoder.Decode(&reqUser, r.PostForm)
-			if err != nil {
-				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": "Bad request body"})
-				return
-			}
-
-			err = validate.Struct(&reqUser)
-			if err != nil {
-				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": fmt.Sprintf("Validation error: %s", err.Error())})
-				return
-			}
-
-			if !users.Authenticate(reqUser) {
-				utils.HandleReturnWithStatusCode(w, 401, map[string]string{"error": "Invalid credentials"})
-				return
-			}
-			session, _ := store.Get(r, "session")
-			session.Values["authenticated"] = true
-			err = session.Save(r, w)
-			if err != nil {
-				utils.HandleReturnWithStatusCode(w, 500, map[string]string{"error": "Error saving session"})
-				return
-			}
-			utils.HandleReturnWithStatusCode(w, 200, map[string]any{"data": nil})
-		})
-
-		r.Post("/signin", func(w http.ResponseWriter, r *http.Request) {
-			validate, _ := r.Context().Value("validator").(*validator.Validate)
-			reqUser := users.User{}
-
-			err := r.ParseMultipartForm(4096)
-			if err != nil {
-				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": "Bad request body"})
-				return
-			}
-
-			err = decoder.Decode(&reqUser, r.PostForm)
-			if err != nil {
-				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": "Bad request body"})
-				return
-			}
-
-			err = validate.Struct(&reqUser)
-			if err != nil {
-				utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": fmt.Sprintf("Validation error: %s", err.Error())})
-				return
-			}
-
-			users.AddUser(reqUser)
-
-			session, _ := store.Get(r, "session")
-			session.Values["authenticated"] = true
-			err = session.Save(r, w)
-			if err != nil {
-				utils.HandleReturnWithStatusCode(w, 500, map[string]string{"error": "Error saving session"})
-				return
-			}
-			utils.HandleReturnWithStatusCode(w, 201, map[string]any{"data": nil})
-		})
+		r.Post("/login", instUserController.LoginAPI)
+		r.Post("/signin", instUserController.SigninAPI)
 	})
 
 	http.ListenAndServe(":3000", r)
