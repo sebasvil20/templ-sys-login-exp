@@ -7,14 +7,20 @@ import (
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/schema"
 	"github.com/gorilla/sessions"
+	"github.com/sebasvil20/templ-sys-login-exp/database"
 	"github.com/sebasvil20/templ-sys-login-exp/middleware"
 	"github.com/sebasvil20/templ-sys-login-exp/users"
 )
 
 func main() {
+	db, err := database.InitializeDatabase()
+	if err != nil {
+		panic(err)
+	}
+
 	decoder := schema.NewDecoder()
 	store := sessions.NewCookieStore([]byte("secret"))
-	instUserHandler := users.InitUserHandler()
+	instUserHandler := users.InitUserHandler(db)
 	instUserController := users.InitUserController(instUserHandler, decoder, store)
 
 	r := chi.NewRouter()

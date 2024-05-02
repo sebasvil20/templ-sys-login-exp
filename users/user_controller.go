@@ -104,7 +104,11 @@ func (userControllerArg UserController) SigninAPI(w http.ResponseWriter, r *http
 		return
 	}
 
-	userControllerArg.UserHandlerInyectado.AddUser(reqUser)
+	err = userControllerArg.UserHandlerInyectado.AddUser(reqUser)
+	if err != nil {
+		utils.HandleReturnWithStatusCode(w, 500, map[string]string{"error": "Error adding user " + err.Error()})
+		return
+	}
 
 	session, _ := userControllerArg.store.Get(r, "session")
 	session.Values["authenticated"] = true
