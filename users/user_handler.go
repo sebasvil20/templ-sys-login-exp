@@ -1,31 +1,24 @@
 package users
 
-import "errors"
+import (
+	"errors"
 
-type User struct {
-	Username string `schema:"username" validate:"required"`
-	Email    string `schema:"email" validate:"required"`
-	Password string `schema:"password" validate:"required"`
-}
-
-type UserCredentials struct {
-	Username string `schema:"username" validate:"required"`
-	Password string `schema:"password" validate:"required"`
-}
+	"github.com/sebasvil20/templ-sys-login-exp/models"
+)
 
 type IUser interface {
-	AddUser(user User) error
-	GetUsers() ([]User, error)
-	Authenticate(credentials UserCredentials) error
+	AddUser(user models.User) error
+	GetUsers() ([]models.User, error)
+	Authenticate(credentials models.UserCredentials) error
 }
 
 type UserHandler struct {
-	users []User
+	users []models.User
 }
 
 func InitUserHandler() UserHandler {
 	userHandler := UserHandler{}
-	userHandler.users = []User{
+	userHandler.users = []models.User{
 		{Username: "Roger", Email: "roger@roger.com", Password: "password"},
 		{Username: "Sebas", Email: "sebas@2.com", Password: "123"},
 	}
@@ -33,17 +26,17 @@ func InitUserHandler() UserHandler {
 	return userHandler
 }
 
-func (userHandlerArg UserHandler) AddUser(user User) error {
+func (userHandlerArg UserHandler) AddUser(user models.User) error {
 	userHandlerArg.users = append(userHandlerArg.users, user)
 
 	return nil
 }
 
-func (userHandlerArg UserHandler) GetUsers() ([]User, error) {
+func (userHandlerArg UserHandler) GetUsers() ([]models.User, error) {
 	return userHandlerArg.users, nil
 }
 
-func (userHandlerArg UserHandler) Authenticate(user UserCredentials) error {
+func (userHandlerArg UserHandler) Authenticate(user models.UserCredentials) error {
 	for _, u := range userHandlerArg.users {
 		if u.Username == user.Username && u.Password == user.Password {
 			return nil

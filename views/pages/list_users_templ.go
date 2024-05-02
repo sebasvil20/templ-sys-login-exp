@@ -11,11 +11,11 @@ import "io"
 import "bytes"
 
 import (
-	"github.com/sebasvil20/templ-sys-login-exp/users"
+	"github.com/sebasvil20/templ-sys-login-exp/models"
 	"github.com/sebasvil20/templ-sys-login-exp/views/layouts"
 )
 
-func ListUser(users []users.User) templ.Component {
+func ListUser(users []models.User) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {

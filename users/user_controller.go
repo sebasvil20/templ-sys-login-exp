@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/schema"
 	"github.com/gorilla/sessions"
+	"github.com/sebasvil20/templ-sys-login-exp/models"
 	"github.com/sebasvil20/templ-sys-login-exp/utils"
 	"github.com/sebasvil20/templ-sys-login-exp/views/pages"
 )
@@ -47,7 +48,7 @@ func (userControllerArg UserController) AccountsPage(w http.ResponseWriter, r *h
 func (userControllerArg UserController) LoginAPI(w http.ResponseWriter, r *http.Request) {
 	validate, _ := r.Context().Value("validator").(*validator.Validate)
 
-	reqUser := UserCredentials{}
+	reqUser := models.UserCredentials{}
 	err := r.ParseMultipartForm(4096)
 	if err != nil {
 		utils.HandleReturnWithStatusCode(w, 400, map[string]string{"error": "Bad request body"})
@@ -83,7 +84,7 @@ func (userControllerArg UserController) LoginAPI(w http.ResponseWriter, r *http.
 
 func (userControllerArg UserController) SigninAPI(w http.ResponseWriter, r *http.Request) {
 	validate, _ := r.Context().Value("validator").(*validator.Validate)
-	reqUser := User{}
+	reqUser := models.User{}
 
 	err := r.ParseMultipartForm(4096)
 	if err != nil {
